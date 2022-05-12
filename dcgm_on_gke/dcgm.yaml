@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nvidia-dcgm
+  namespace: kube-system
+  labels:
+    k8s-app: nvidia-dcgm
+spec:
+  selector:
+    matchLabels:
+      k8s-app: nvidia-dcgm
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: nvidia-dcgm
+        k8s-app: nvidia-dcgm
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: cloud.google.com/gke-accelerator
+                operator: Exists
+      tolerations:
+      - operator: "Exists"
+      #hostNetwork: true
+      #hostPID: true
+      volumes:
+      - name: nvidia-install-dir-host
+        hostPath:
+          path: /home/kubernetes/bin/nvidia
+      - name: dcgm
+        hostPath:
+          path: /var/nvidia
+      containers:
+      - image: "gcr.io/pradvenkat-gke-dev/dcgm-test@sha256:ba4fc6bda6fd000004904d12027817b30b5d5cace94444672f36b89570499d9b"
+        command: ["nv-hostengine", "-n", "--domain-socket", "/var/nvidia/dcgm.sock"]
+        #command: ["sleep", "3600"]
+        name: nvidia-dcgm
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: dcgm
+          mountPath: /var/nvidia
+        - name: nvidia-install-dir-host
+          mountPath: /usr/local/nvidia

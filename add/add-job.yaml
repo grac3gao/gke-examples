@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: add
+spec:
+  completions: 2
+  parallelism: 1
+  template:
+    spec:
+      containers:
+      - name: add
+        image: gcr.io/pradvenkat-gke-dev/add@sha256:f21f9bed1d518f739453b3e4cba9b437a68f195dab38168051378b6a458bafcc
+        command:
+        - /bin/sh
+        - -c
+        - nvidia-smi; /usr/local/cuda/samples/0_Simple/vectorAdd/vectorAdd;
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+      restartPolicy: Never
+  backoffLimit: 4
+
+
+# sequential: 3m27s
+# timeslicnng: 3m42s
+# MPS: 104s
+
+
+
+# With timesharing, running two pods with GPU sharing, time taken: 106s, 
+# With no timesharing, running one after each other: 100s
+# With MPS it is 96 seconds

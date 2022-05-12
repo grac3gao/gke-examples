@@ -1,0 +1,55 @@
+# Enables verbose logging of runtime components
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: verbose-logging
+  namespace: default
+  labels:
+    k8s-app: verbose-logging
+spec:
+  selector:
+    matchLabels:
+      name: verbose-logging
+  template:
+    metadata:
+      labels:
+        name: verbose-logging
+    spec:
+      nodeSelector:
+        extra-debug-logging: "true"
+      hostPID: true
+      containers:
+        - name: startup-script
+          image: gcr.io/google-containers/startup-script:v1
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+          env:
+          - name: STARTUP_SCRIPT
+            value: |
+              set -o errexit
+              set -o pipefail
+              set -o nounset
+
+              echo "Changing kubelet configuration to --v=4"
+              sed -i "s:--v=2:--v=4:g" /etc/default/kubelet
+              echo "Restarting kubelet..."
+              systemctl restart kubelet
+
+              echo "Changing docker configuration to --log-level=debug"
+              sed -i "s:--log-level=warn:--log-level=debug:g" /etc/default/docker
+              echo "Restarting docker..."
+              systemctl restart docker
+
+              echo "Changing containerd logging level to debug"
+              CONTAINERD_CONFIG_FILE="/etc/containerd/config.toml"
+
+              if [ ! -f ${CONTAINERD_CONFIG_FILE} ]; then
+                echo "Creating containerd config file at ${CONTAINERD_CONFIG_FILE}"
+                mkdir -p "$(dirname "${CONTAINERD_CONFIG_FILE}")"
+                echo -e '[debug]\n  level = "debug"' > ${CONTAINERD_CONFIG_FILE}
+              else
+                sed -i "s/info/debug/g" ${CONTAINERD_CONFIG_FILE}
+              fi
+              echo "Restarting containerd..."
+              systemctl restart containerd

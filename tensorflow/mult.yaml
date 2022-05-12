@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+        name: tf-mat-mult
+spec:
+        containers:
+        - name: tf-mat-mult
+          image: tensorflow/tensorflow:latest-gpu 
+          command:
+          - python3
+          - -c
+          - import tensorflow as tf; tf.debugging.set_log_device_placement(True);  print(tf.matmul(tf.random.normal([10000, 10000]), tf.random.normal([10000, 1000]) ) )
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+          env:
+          - name: LD_LIBRARY_PATH
+            value: /usr/local/nvidia/lib64
+        restartPolicy: OnFailure

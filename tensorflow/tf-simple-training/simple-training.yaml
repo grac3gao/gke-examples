@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+        name: tf
+spec:
+        containers:
+        - name: tf
+          image:  gcr.io/pradvenkat-gke-dev/tf-simple-training@sha256:b6513cdd664a172445d516aafee9c7273fb1ffabc3c08303138f1cfe59e30a0e
+          command:
+          - python3
+          - simple_training.py
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+        restartPolicy: OnFailure

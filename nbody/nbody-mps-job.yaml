@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nbody
+spec:
+  completions: 2
+  parallelism: 2
+  template:
+    spec:
+      containers:
+      - name: nbody
+        image: gcr.io/pradvenkat-gke-dev/cuda-nbody@sha256:6c45e4eafe4565f3f0cb2e1e404182d3c5806b83a2f748ef23a46a9766f3607b
+        command:
+        - /bin/sh
+        - -c
+        - nvidia-smi; /usr/local/cuda/samples/5_Simulations/nbody/nbody -benchmark -numbodies=1000000;
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - mountPath: /tmp/nvidia-mps
+          name: mps
+        env:
+        - name: CUDA_MPS_ACTIVE_THREAD_PERCENTAGE
+          value: "50"
+      restartPolicy: Never
+      hostIPC: true
+      volumes:
+      - hostPath:
+          path: /tmp/nvidia-mps
+          type: Directory
+        name: mps
+  backoffLimit: 4

@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: add
+spec:
+  completions: 2
+  parallelism: 2
+  template:
+    spec:
+      containers:
+      - name: add
+        image: gcr.io/pradvenkat-gke-dev/add@sha256:6910e2bcdff3d0cbd32c75e2bb3c7f74192dc31eef39c64fd4c55361a6ef529a
+        command:
+        - /bin/sh
+        - -c
+        - nvidia-smi; /usr/local/cuda/samples/0_Simple/vectorAdd/vectorAdd;
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - mountPath: /tmp/nvidia-mps
+          name: mps
+        env:
+        - name: CUDA_MPS_ACTIVE_THREAD_PERCENTAGE
+          value: "50"
+      restartPolicy: Never
+      hostIPC: true
+      volumes:
+      - hostPath:
+          path: /tmp/nvidia-mps
+          type: Directory
+        name: mps
+  backoffLimit: 4
+
+# MPS with synchronization
+#  
+
+
+# ------
+# To start MPS on the node:
+# Current compute modpe of GPU: nvidia-smi -q -d compute
+
+# Set GPU 0 to exclusive mode:   nvidia-smi -i 0 -c EXCLUSIVE_PROCESS
+
+# Set GPU 0 back to default mode: nvidia-smi -i 0 -c DEFAULT
+
+# Reboot/reset GPU with new setting: nvidia-smi -i 0 -r 
+
+# PATH=$PATH:/home/kubernetes/bin/nvidia/bin
+
+# nvidia-cuda-mps-control -d 
+
+# ps -ef | grep mps
+
+# echo get_default_active_thread_percentage  | nvidia-cuda-mps-control 
+
+# echo quit | nvidia-cuda-mps-control
+
+
+

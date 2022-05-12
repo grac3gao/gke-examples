@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-perf
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: gpu-perf
+  template:
+    metadata:
+      labels:
+        app: gpu-perf
+    spec:
+      containers:
+      - name: gpu-perf
+        image: gcr.io/pradvenkat-gke-dev/gpu-perf@sha256:127b2bccc8176b20adcf8b75701ea59a3937f99739fc985b972a0c7ee3abf321
+        command:
+        - /bin/sh
+        - -c
+        - while true; do ./UnifiedMemoryPerf; nvidia-smi; done
+        resources:
+          limits:
+            cloud.google.com/vgpu: 1

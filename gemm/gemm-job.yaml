@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gemm
+spec:
+  completions: 2
+  parallelism: 2
+  template:
+    spec:
+      containers:
+      - name: gemm
+        image: gcr.io/pradvenkat-gke-dev/gemm@sha256:7250345d0a12a637ed4fd8d4d0024d57ea7fd73eaf22322a8d5cd93d2791a4cc
+        command:
+        - /bin/sh
+        - -c
+        - nvidia-smi; /usr/local/cuda/samples/0_Simple/bf16TensorCoreGemm/bf16TensorCoreGemm;
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+      restartPolicy: Never
+  backoffLimit: 4
+
+
+# With timesharing, running two pods with GPU sharing, time taken: 106s, 
+# With no timesharing, running one after each other: 100s
+# With MPS it is 96 seconds
+
+
+
+#DCGM_FI_PROF_GR_ENGINE_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.998158
+#DCGM_FI_PROF_SM_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.981787
+#DCGM_FI_PROF_SM_OCCUPANCY{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.210405
+#DCGM_FI_PROF_PIPE_TENSOR_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.405143
+#DCGM_FI_PROF_DRAM_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.411188
+#DCGM_FI_PROF_PIPE_FP64_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.000000
+#DCGM_FI_PROF_PIPE_FP32_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.010170
+#DCGM_FI_PROF_PIPE_FP16_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.000000
+
+#Total 66 seconds
+
+

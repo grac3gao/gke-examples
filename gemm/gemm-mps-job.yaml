@@ -1,0 +1,71 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gemm
+spec:
+  completions: 2
+  parallelism: 2
+  template:
+    spec:
+      containers:
+      - name: gemm
+        image: gcr.io/pradvenkat-gke-dev/gemm@sha256:7250345d0a12a637ed4fd8d4d0024d57ea7fd73eaf22322a8d5cd93d2791a4cc
+        command:
+        - /bin/sh
+        - -c
+        - nvidia-smi; /usr/local/cuda/samples/0_Simple/bf16TensorCoreGemm/bf16TensorCoreGemm;
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - mountPath: /tmp/nvidia-mps
+          name: mps
+        env:
+        - name: CUDA_MPS_ACTIVE_THREAD_PERCENTAGE
+          value: "50"
+      restartPolicy: Never
+      hostIPC: true
+      volumes:
+      - hostPath:
+          path: /tmp/nvidia-mps
+          type: Directory
+        name: mps
+  backoffLimit: 4
+
+# MPS with synchronization
+#  
+
+
+# ------
+# To start MPS on the node:
+# Current compute modpe of GPU: nvidia-smi -q -d compute
+
+# Set GPU 0 to exclusive mode:   nvidia-smi -i 0 -c EXCLUSIVE_PROCESS
+
+# Set GPU 0 back to default mode: nvidia-smi -i 0 -c DEFAULT
+
+# Reboot/reset GPU with new setting: nvidia-smi -i 0 -r 
+
+# PATH=$PATH:/home/kubernetes/bin/nvidia/bin
+
+# nvidia-cuda-mps-control -d 
+
+# ps -ef | grep mps
+
+# echo get_default_active_thread_percentage  | nvidia-cuda-mps-control 
+
+# echo quit | nvidia-cuda-mps-control
+
+
+
+#DCGM_FI_PROF_GR_ENGINE_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 1.000000
+#DCGM_FI_PROF_SM_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.989832
+#DCGM_FI_PROF_SM_OCCUPANCY{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.211936
+#DCGM_FI_PROF_PIPE_TENSOR_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.396720
+#DCGM_FI_PROF_DRAM_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.675619
+#DCGM_FI_PROF_PIPE_FP64_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.000000
+#DCGM_FI_PROF_PIPE_FP32_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.009955
+#DCGM_FI_PROF_PIPE_FP16_ACTIVE{gpu="0", UUID="GPU-4d383f1e-1cb3-5fa2-fa8a-97df964553a4", device="nvidia0",container="",namespace="",pod=""} 0.000000
+
+# total duration: 61 seconds
+

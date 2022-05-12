@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vector-add
+  labels:
+    app: vector-add
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vector-add
+  template:
+    metadata:
+      labels:
+        app: vector-add
+    spec:
+      containers:
+      - name: vector-add
+        image: gcr.io/pradvenkat-gke-dev/cuda-vector-add-11-0:latest
+        command:
+        - /bin/sh
+        - -c
+        - nvidia-smi && while true; do ./vectorAdd; nvidia-smi; sleep 10; done
+        resources:
+          limits:
+            nvidia.com/gpu: 1

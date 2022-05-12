@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mat-mult
+spec:
+  containers:
+  - name: mat-mult
+    image: gcr.io/pradvenkat-gke-dev/cuda-11-matrix-mult@sha256:6dbc59f28828ca551a206bc749f8f920248d3fc6920a33c2e09698d87a66ecde
+    command:
+    - /bin/sh
+    - -c
+    - nvidia-smi && while true; do ./matrixMul -wA=5000 -hA=5000 -wB=5000 -hB=5000; sleep 5; done
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+    restartPolicy: OnFailure

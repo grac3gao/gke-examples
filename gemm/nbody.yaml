@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nbody
+spec:
+  containers:
+  - name: nbody
+    image: gcr.io/pradvenkat-gke-dev/cuda-nbody@sha256:6c45e4eafe4565f3f0cb2e1e404182d3c5806b83a2f748ef23a46a9766f3607b
+    command:
+    - /bin/sh
+    - -c
+    - nvidia-smi && while true; do /usr/local/cuda/samples/5_Simulations/nbody/nbody -benchmark -numbodies=1000000; sleep 10; done
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+  restartPolicy: OnFailure

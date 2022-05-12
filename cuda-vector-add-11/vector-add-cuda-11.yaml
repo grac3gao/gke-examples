@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+        name: cuda-11-0-vector-add
+spec:
+        containers:
+                - name: cuda-11-0-vector-add
+                  image: gcr.io/pradvenkat-gke-dev/cuda-vector-add-11-0:latest
+                  command:
+                          #- sleep
+                          #- "3600"
+                          - /bin/sh
+                          - -c
+                          - nvidia-smi && while true; do ./vectorAdd; nvidia-smi; sleep 10; done
+                  resources:
+                          limits:
+                                  nvidia.com/gpu: 1
+        restartPolicy: OnFailure

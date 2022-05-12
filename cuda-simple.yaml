@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cuda-simple
+spec:
+  replicas: 7
+  selector:
+    matchLabels:
+      app: cuda-simple
+  template:
+    metadata:
+      labels:
+        app: cuda-simple
+    spec:
+      containers:
+      - name: cuda-simple
+        image: nvidia/cuda:11.0-base
+        command:
+        - bash
+        - -c
+        - |
+          /usr/local/nvidia/bin/nvidia-smi -L; sleep 300
+        resources:
+          limits:
+            nvidia.com/gpu: 1

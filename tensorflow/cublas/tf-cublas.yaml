@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+        name: tf
+spec:
+        containers:
+        - name: tf
+          image:  gcr.io/pradvenkat-gke-dev/tf-cublas@sha256:10b0f81e6ee2bc029d38fa50aa673f9517619a80e4dcc259f7919c7cd87d13cf
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+        restartPolicy: OnFailure
