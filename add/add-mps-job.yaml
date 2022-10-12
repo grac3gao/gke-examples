@@ -3,13 +3,13 @@ kind: Job
 metadata:
   name: add
 spec:
-  completions: 2
-  parallelism: 2
+  completions: 1
+  parallelism: 1
   template:
     spec:
       containers:
       - name: add
-        image: gcr.io/pradvenkat-gke-dev/add@sha256:6910e2bcdff3d0cbd32c75e2bb3c7f74192dc31eef39c64fd4c55361a6ef529a
+        image: us.gcr.io/gracegao-gke-dev/add@sha256:011757f0253f73721463ac1cc678aa7a85f4e84e7c67723621d551ea71c5f656
         command:
         - /bin/sh
         - -c
@@ -20,9 +20,11 @@ spec:
         volumeMounts:
         - mountPath: /tmp/nvidia-mps
           name: mps
-        env:
-        - name: CUDA_MPS_ACTIVE_THREAD_PERCENTAGE
-          value: "50"
+#        env:
+#        - name: CUDA_MPS_ACTIVE_THREAD_PERCENTAGE
+#          value: "10"
+#        - name: CUDA_MPS_PINNED_DEVICE_MEM_LIMIT
+#          value: "50MB"
       restartPolicy: Never
       hostIPC: true
       volumes:

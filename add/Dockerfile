@@ -1,7 +1,7 @@
-FROM nvidia/cuda:11.1-devel-ubuntu18.04
+FROM nvidia/cuda:11.5.0-devel-ubuntu20.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        cuda-samples-11-1 && \
+        cuda-samples-11-5 && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/local/cuda/samples/0_Simple/vectorAdd

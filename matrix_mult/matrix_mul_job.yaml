@@ -3,13 +3,13 @@ kind: Job
 metadata:
   name: mat-mult
 spec:
-  completions: 2
-  parallelism: 2
+  completions: 1
+  parallelism: 1
   template:
     spec:
       containers:
       - name: mat-mult
-        image: gcr.io/pradvenkat-gke-dev/cuda-11-matrix-mult@sha256:6dbc59f28828ca551a206bc749f8f920248d3fc6920a33c2e09698d87a66ecde
+        image: us.gcr.io/gracegao-gke-dev/matrix@sha256:75580c205bafeff5fa4e1d17d2e47ae5e35a8312b7ef397b0bb01d5aaa7c006d
         command:
         - /bin/sh
         - -c
@@ -17,5 +17,19 @@ spec:
         resources:
           limits:
             nvidia.com/gpu: 1
+        volumeMounts:
+          - mountPath: /tmp/nvidia-mps
+            name: mps
+        env:
+#        - name: CUDA_MPS_ACTIVE_THREAD_PERCENTAGE
+#          value: "10"
+        - name: CUDA_MPS_PINNED_DEVICE_MEM_LIMIT
+          value: "50MB"
       restartPolicy: Never
+      hostIPC: true
+      volumes:
+        - hostPath:
+            path: /tmp/nvidia-mps
+            type: Directory
+          name: mps
   backoffLimit: 4

@@ -9,7 +9,7 @@ spec:
     spec:
       containers:
       - name: nbody
-        image: gcr.io/pradvenkat-gke-dev/cuda-nbody@sha256:6c45e4eafe4565f3f0cb2e1e404182d3c5806b83a2f748ef23a46a9766f3607b
+        image: us.gcr.io/gracegao-gke-dev/nbody@sha256:6e346bb9cf50a3fd3df399f8afa07fdde58e05b564683d3bc3f0d13d98851249
         command:
         - /bin/sh
         - -c
